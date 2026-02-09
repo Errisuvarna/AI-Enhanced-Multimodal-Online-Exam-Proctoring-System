@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Online Exam</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+            --danger-gradient: linear-gradient(135deg, #ff5858, #f857a6);
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ------------------------- LIGHT MODE --------------------------- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            transition: 0.3s ease-in-out;
+        }
+
+        /* DARK MODE GLOBAL */
+        body.dark-mode {
+            background: #0d1117;
+            color: #e6edf3;
+        }
+
+        /* ------------------ TOGGLE BUTTON ------------------ */
+        #themeToggle {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            padding: 8px 16px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            z-index: 9999;
+        }
+
+        body.dark-mode #themeToggle {
+            background: #161b22;
+            color: #e6edf3;
+            border: 1px solid #30363d;
+        }
+
+        /* ---------------- HEADERS ---------------- */
+        h2 {
+            text-align: center;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            box-shadow: var(--box-shadow);
+        }
+
+        body.dark-mode h2 {
+            color: white;
+            box-shadow: none;
+        }
+
+        /* ---------- ALERT BOX ---------- */
+        #cheating-alert {
+            background: var(--danger-gradient);
+            color: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            display: none;
+        }
+
+        /* ---------- FORM BOX ---------- */
+        #exam-form {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: 0.3s;
+        }
+
+        body.dark-mode #exam-form {
+            background: #1c2128;
+            border: 1px solid #30363d;
+        }
+
+        #exam-form div {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        body.dark-mode #exam-form div {
+            background: #242c36;
+            border: 1px solid #30363d;
+        }
+
+        /* ---------- TIMER ---------- */
+     /* ---------- TIMER TEXT ---------- */
+#timer {
+    font-weight: bold;
+    color: inherit;
+}
+
+/* ---------- TIMER BOX ---------- */
+#timer-box {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    background: #161b22;
+    color: #58a6ff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    z-index: 9999;
+}
+
+/* ---------- ALERT ---------- */
+#alert-box {
+    position: fixed;
+    top: 120px;
+    right: 20px;
+    background: #ff9800;
+    color: #000;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    display: none;
+    z-index: 9999;
+}
+
+        /* ---------- VIDEO & CANVAS ---------- */
+        video, canvas {
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        body.dark-mode video, 
+        body.dark-mode canvas {
+            box-shadow: none;
+            border: 1px solid #30363d;
+        }
+
+        /* ---------- DETECTION BOXES ---------- */
+        .status-box {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        body.dark-mode .status-box {
+            background: rgba(255,255,255,0.1);
+        }
+
+        button[type="submit"] {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 20px;
+            width: 100%;
+            transition: 0.3s;
+            box-shadow: var(--box-shadow);
+        }
+
+        body.dark-mode button[type="submit"] {
+            box-shadow: none;
+        }
+
+        button[type="submit"]:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- DARK MODE BUTTON -->
+<button id="themeToggle">🌙 Dark Mode</button>
+
+<h2>Online Exam</h2>
+<div id="timer-box">
+    ⏱ Time Left: <span id="timer">00:00</span>
+</div>
+
+<div id="alert-box"></div>
+
+
+<div id="cheating-alert">✅ No cheating detected.</div>
+
+<h2>Live Webcam & Audio Feed</h2>
+
+<video id="webcam" width="640" height="480" autoplay playsinline></video>
+<canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+<div id="detection-status">
+    <div class="status-box" id="blink-status">Blink: -</div>
+    <div class="status-box" id="mouth-status">Mouth: -</div>
+    <div class="status-box" id="headpose-status">Head Pose: -</div>
+    <div class="status-box" id="object-status">Object: -</div>
+    <div class="status-box" id="cheating-status">Cheating: -</div>
+    <div class="status-box" id="audio-status">Audio: -</div>
+    <div class="status-box" id="emotion-status">Emotion: -</div>
+</div>
+
+<form method="POST" action="{{ url_for('submit_exam', subject_id=subject.id) }}">
+  <h2>Exam: {{ subject.name }}</h2>
+  {% for q in questions %}
+    <p>{{ q.question }}</p>
+<input type="radio" name="q{{ q.id }}" value="1"> {{ q.option1 }}<br>
+<input type="radio" name="q{{ q.id }}" value="2"> {{ q.option2 }}<br>
+<input type="radio" name="q{{ q.id }}" value="3"> {{ q.option3 }}<br>
+<input type="radio" name="q{{ q.id }}" value="4"> {{ q.option4 }}<br>
+  {% endfor %}
+  <button type="submit">Submit</button>
+</form>
+
+
+<script>
+/* ---------------- DARK MODE SCRIPT ---------------- */
+const toggleBtn = document.getElementById("themeToggle");
+
+if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    toggleBtn.textContent = "☀️ Light Mode";
+}
+
+toggleBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("theme", "dark");
+        toggleBtn.textContent = "☀️ Light Mode";
+    } else {
+        localStorage.setItem("theme", "light");
+        toggleBtn.textContent = "🌙 Dark Mode";
+    }
+});
+
+/* ---------------- TIMER ---------------- */
+/* ---------------- INTELLIGENT TIMER ---------------- */
+let remainingTime = {{ exam_time }};  // from Flask
+const timerEl = document.getElementById("timer");
+const alertBox = document.getElementById("alert-box");
+
+const alerts = {
+    600: "⚠ 10 minutes remaining!",
+    300: "⚠ 5 minutes remaining!",
+    60:  "⚠ Final 1 minute remaining!"
+};
+
+function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function showAlert(msg) {
+    alertBox.innerText = msg;
+    alertBox.style.display = "block";
+    setTimeout(() => alertBox.style.display = "none", 4000);
+}
+
+timerEl.innerText = formatTime(remainingTime);
+
+const timerInterval = setInterval(() => {
+    remainingTime--;
+    timerEl.innerText = formatTime(remainingTime);
+
+    if (alerts[remainingTime]) {
+        showAlert(alerts[remainingTime]);
+    }
+
+    if (remainingTime <= 0) {
+        clearInterval(timerInterval);
+        alert("⛔ Time is up! Exam will be submitted.");
+        document.getElementById("exam-form").submit();
+    }
+}, 1000);
+
+/* ---------------- WEBCAM ---------------- */
+const video = document.getElementById('webcam');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+.then(stream => { video.srcObject = stream; })
+.catch(err => { alert("Webcam/Microphone access denied."); console.error(err); });
+
+let cheatCount = 0;
+const MAX_CHEATS = 3;
+const userId = '{{ session.user_id }}';
+
+/* ---------------- TAB SWITCH DETECTION ---------------- */
+let tabSwitchCount = 0;
+const MAX_TAB_SWITCHES = 3;
+
+document.addEventListener("visibilitychange", function() {
+    if (document.hidden) {
+        tabSwitchCount++;
+        alert(`⚠️ Tab switch detected! (${tabSwitchCount})`);
+
+        fetch("/log_cheating", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ type: "Tab Switch", user_id: userId })
+        });
+
+        if (tabSwitchCount >= MAX_TAB_SWITCHES) {
+            alert("🚫 Exam terminated due to multiple tab switches!");
+            window.location.href = "/logout";
+        }
+    }
+});
+
+/* ---------------- CHEATING DETECTION ---------------- */
+setInterval(() => {
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = canvas.toDataURL('image/jpeg');
+
+    fetch('/detect_cheating', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: imageData, user_id: userId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("blink-status").innerText = "Blink: " + data.blink;
+        document.getElementById("mouth-status").innerText = "Mouth: " + data.mouth;
+        document.getElementById("headpose-status").innerText = "Head Pose: " + data.head_pose;
+        document.getElementById("object-status").innerText = "Object: " + data.object;
+        document.getElementById("cheating-status").innerText = "Cheating: " + data.cheating;
+        document.getElementById("audio-status").innerText = "Audio: " + data.audio;
+         // ← new line for emotion
+         document.getElementById("emotion-status").innerText =
+         "Emotion: " + data.emotion + " (" + data.emotion_conf + "%)";
+
+        if (data.cheating && data.cheating.includes("Yes")) {
+            cheatCount++;
+            document.getElementById('cheating-alert').textContent = `❌ Cheating detected! Violation #${cheatCount}`;
+            document.getElementById('cheating-alert').style.background = "var(--danger-gradient)";
+            document.getElementById('cheating-alert').style.display = "block";
+
+            if (cheatCount >= MAX_CHEATS) {
+                alert('🚨 Exam terminated due to repeated cheating!');
+                window.location.href = '/logout';
+            }
+        } else {
+            document.getElementById('cheating-alert').textContent = '✅ No cheating detected.';
+            document.getElementById('cheating-alert').style.background = "var(--primary-gradient)";
+            document.getElementById('cheating-alert').style.display = "block";
+        }
+    });
+}, 3000);
+</script>
+</body>
+</html>

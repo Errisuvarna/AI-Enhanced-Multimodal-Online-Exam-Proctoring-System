@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Final Result</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .card {
+            width: 420px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,.12);
+            overflow: hidden;
+        }
+
+        .header {
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #6a85f1, #a777e3);
+            color: white;
+        }
+
+        .circle {
+            width: 160px;
+            height: 160px;
+            margin: 25px auto;
+            position: relative;
+        }
+
+        .center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 22px;
+            font-weight: bold;
+            color: #2ecc71;
+        }
+
+        .msg {
+            text-align: center;
+            font-weight: bold;
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+
+        /* ---------- PERFORMANCE BOX ---------- */
+        .performance-box {
+            background: #f9fcff;
+            margin: 15px;
+            border-radius: 12px;
+            padding: 10px;
+        }
+
+        .performance-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .performance-item:last-child {
+            border-bottom: none;
+        }
+
+        .performance-item i {
+            font-size: 22px;
+        }
+
+        .correct i { color: #2ecc71; }
+        .incorrect i { color: #e74c3c; }
+        .total i { color: #555; }
+
+        .performance-item p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* ---------- SHARE SECTION ---------- */
+        .share-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .share-text {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .share {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .fb { background: #3b5998; }
+        .wa { background: #25d366; }
+        .tw { background: #1da1f2; }
+        .in { background: #0077b5; }
+
+        .charts {
+            padding: 20px;
+        }
+
+        .btns {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .green { background: #2ecc71; }
+        .red { background: #e74c3c; }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: gray;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h2>Final Result</h2>
+        <p>Total Score: {{ total_score }}/{{ total_questions }}</p>
+    </div>
+
+    <!-- CIRCULAR PROGRESS -->
+    <div class="circle">
+        <canvas id="progressChart"></canvas>
+        <div class="center-text">{{ percentage }}%</div>
+    </div>
+
+    <div class="msg">{{ message }}</div>
+
+    <!-- ICON STATS -->
+    <div class="performance-box">
+
+        <div class="performance-item correct">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Correct Answers</strong>
+                <p>{{ total_score }} questions</p>
+            </div>
+        </div>
+
+        <div class="performance-item incorrect">
+            <i class="fas fa-times-circle"></i>
+            <div>
+                <strong>Incorrect Answers</strong>
+                <p>{{ total_questions - total_score }} questions</p>
+            </div>
+        </div>
+
+        <div class="performance-item total">
+            <i class="fas fa-list"></i>
+            <div>
+                <strong>Total Questions</strong>
+                <p>{{ total_questions }}</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SUBJECT CHART -->
+    <div class="charts">
+        <h4 style="text-align:center;">Subject-wise Performance</h4>
+        <canvas id="barChart"></canvas>
+    </div>
+
+    <!-- SHARE BUTTONS -->
+    <div class="share-section">
+        <p class="share-text">
+            <i class="fas fa-share-alt"></i> Share your achievement
+        </p>
+
+        <div class="share-buttons">
+            <a class="share fb"
+               href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}"
+               target="_blank">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+
+            <a class="share wa"
+               href="https://wa.me/?text=I scored {{ percentage }}% in Online Exam! {{ request.url }}"
+               target="_blank">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+
+            <a class="share tw"
+               href="https://twitter.com/intent/tweet?text=I scored {{ percentage }}% in Online Exam!&url={{ request.url }}"
+               target="_blank">
+                <i class="fab fa-twitter"></i>
+            </a>
+
+            <a class="share in"
+               href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url }}"
+               target="_blank">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="btns">
+        <a href="/download_certificate?score={{ percentage }}">
+            <button class="btn green">Download Certificate</button>
+        </a>
+        <a href="/logout">
+            <button class="btn red">Logout</button>
+        </a>
+    </div>
+
+    <footer>© 2026 Online Examination System</footer>
+</div>
+
+<script>
+    new Chart(document.getElementById("progressChart"), {
+        type: "doughnut",
+        data: {
+            datasets: [{
+                data: [{{ percentage }}, {{ 100 - percentage }}],
+                backgroundColor: ["#2ecc71", "#eee"]
+            }]
+        },
+        options: {
+            cutout: "80%",
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+            labels: [{% for s in subjects %}"{{ s.subject_name }}",{% endfor %}],
+            datasets: [{
+                label: "Score",
+                data: [{% for s in subjects %}{{ s.score }},{% endfor %}],
+                backgroundColor: "#6a85f1"
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+</script>
+
+</body>
+</html>

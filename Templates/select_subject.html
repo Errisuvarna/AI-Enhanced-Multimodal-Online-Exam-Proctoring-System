@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Select Subject</title>
+</head>
+<body>
+    <h2>Select Subject</h2>
+
+    {% for sub in subjects %}
+        <a href="{{ url_for('exam', subject_id=sub.id) }}">
+            <button>{{ sub.name }}</button>
+        </a>
+        <br><br>
+    {% endfor %}
+</body>
+</html>

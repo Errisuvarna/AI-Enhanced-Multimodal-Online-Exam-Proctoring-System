@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Exam Results</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+            --success-gradient: linear-gradient(135deg, #0ba360, #3cba92);
+            --warning-gradient: linear-gradient(135deg, #f6d365, #fda085);
+            --danger-gradient: linear-gradient(135deg, #ff5858, #f857a6);
+            --neutral-gradient: linear-gradient(135deg, #8e9eab, #eef2f3);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --text-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 20px;
+            position: relative;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+        }
+
+        .background-shapes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+        .shape { position: absolute; opacity: 0.38; filter: blur(36px); transform: translateZ(0); pointer-events:none; }
+        .shape-1 { background: #6e8efb; width: 300px; height: 300px; border-radius: 50%; top: -70px; left: -70px; }
+        .shape-2 { background: #a777e3; width: 200px; height: 200px; border-radius: 50%; bottom: -30px; right: -30px; }
+        .shape-3 { background: #fda085; width: 150px; height: 150px; border-radius: 50%; bottom: 80px; left: 18%; }
+
+        .container {
+            max-width: 760px;
+            width: 100%;
+            background: rgba(255,255,255,0.98);
+            backdrop-filter: blur(6px);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.72s ease forwards;
+        }
+
+        .header { background: var(--primary-gradient); padding: 28px 20px; text-align: center; color: white; position: relative; }
+        .header h2 { font-size: 28px; margin-bottom: 8px; font-weight:800; text-shadow: var(--text-shadow); }
+        .header p { font-size: 13px; opacity: 0.95; margin-top: 6px; }
+
+        .result-card { padding: 36px 42px 36px 42px; text-align: center; }
+
+        .score-container { margin: 18px 0 18px; position: relative; }
+        .score-circle {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: #fff;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+        }
+
+        .score-outer {
+            position: absolute;
+            inset: 0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            pointer-events:none;
+        }
+
+        .score-inner {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #ffffff;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position: relative;
+            z-index: 6;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.035);
+            flex-direction: column;
+            padding: 8px;
+        }
+
+        .score-text {
+            font-size: 20px;
+            font-weight:700;
+            color:#3a4;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:4px;
+        }
+
+        .score-values { font-size: 24px; font-weight:800; color:#4267f5; }
+        .score-percent { font-size: 11px; color: #6b7280; }
+
+        .message { font-size: 16px; font-weight: 700; margin: 20px 0 18px; color:#1f8a55; }
+
+/* Color overrides based on performance */
+.message.excellent { color: #0ba360; /* green */ }
+.message.good { color: #f6a11a; /* orange/yellow */ }
+.message.needs-improvement { color: #ff4c4c; /* red */ }
+
+
+        /* Breakdown */
+        .breakdown {
+            margin: 22px auto;
+            padding: 18px;
+            background: #f6fafc;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 640px;
+            box-shadow: 0 2px 0 rgba(0,0,0,0.01) inset;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .break-title {
+            font-weight:700;
+            text-align:center;
+            margin-bottom: 12px;
+            color:#333;
+            font-size:15px;
+        }
+
+        .break-row {
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding: 12px 10px;
+            border-radius:8px;
+            background: transparent;
+        }
+
+        .break-row + .break-row { border-top: 1px solid rgba(0,0,0,0.03); }
+
+        .break-icon {
+            width:36px;
+            height:36px;
+            border-radius: 50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            flex-shrink:0;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.03);
+        }
+
+        .break-icon.correct { background: linear-gradient(135deg,#0ba360,#3cba92); }
+        .break-icon.incorrect { background: linear-gradient(135deg,#ff6b6b,#f857a6); }
+        .break-icon.neutral { background: linear-gradient(135deg,#55595f,#9ea3a9); color:#fff; }
+        .break-text { text-align:left; }
+        .break-text .title { font-weight:700; color:#222; font-size:14px; }
+        .break-text .sub { font-size:12px; color:#777; margin-top:4px; }
+
+        .time-row {
+            padding: 12px 10px;
+            display:flex;
+            align-items:center;
+            gap:12px;
+            justify-content:center;
+        }
+        .time-icon {
+            width:32px;
+            height:32px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            background: linear-gradient(135deg,#eef2ff,#f8fafc);
+            color:#333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .time-text { font-weight:600; color:#444; font-size:13px; }
+
+        .certificate-preview {
+            margin: 16px auto 6px;
+            padding: 18px 18px;
+            border: 2px dashed #e6e6e6;
+            border-radius: 12px;
+            text-align:center;
+            position:relative;
+            overflow:hidden;
+            cursor:pointer;
+            width:100%;
+            max-width:640px;
+            background: #fff;
+        }
+        .certificate-preview:hover { border-color: #6e8efb; background: rgba(110,142,251,0.02); }
+        .certificate-icon { font-size:20px; color:#6e8efb; margin-bottom:8px; }
+        .certificate-text { font-weight:600; color:#333; font-size:14px; }
+
+        .share-row { margin-top: 12px; display:flex; justify-content:center; gap:14px; }
+
+        .share-btn {
+            width:44px;
+            height:44px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:16px;
+            cursor:pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+            transition: transform .16s ease;
+        }
+        .share-btn:hover { transform: translateY(-6px) scale(1.03); }
+
+        .share-btn.facebook { background: linear-gradient(135deg,#4267B2,#274b9a); }
+        .share-btn.whatsapp { background: linear-gradient(135deg,#25D366,#1da851); }
+        .share-btn.twitter { background: linear-gradient(135deg,#1DA1F2,#0e71a8); }
+        .share-btn.linkedin { background: linear-gradient(135deg,#0077B5,#00669c); }
+
+        .actions {
+            display:flex;
+            gap:12px;
+            justify-content:center;
+            margin-top:18px;
+            padding-bottom:12px;
+        }
+
+        .btn {
+            min-width: 160px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            border: none;
+            font-weight:700;
+            cursor:pointer;
+            text-decoration:none;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            color:white;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        }
+        .btn-primary { background: var(--primary-gradient); }
+        .btn-secondary { background: linear-gradient(135deg,#eef2f3,#cfd8dc); color:#333; box-shadow: 0 8px 30px rgba(142,158,171,0.04); }
+
+        .footer { margin-top: 18px; text-align:center; font-size:13px; opacity:0.7; padding: 12px 0; }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @media (max-width: 720px) {
+            .container { margin: 12px; }
+            .result-card { padding: 22px; }
+            .score-circle { width:150px; height:150px; }
+            .score-inner { width:96px; height:96px; }
+            .breakdown { padding:14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-shapes" aria-hidden="true">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <div class="container" role="main" aria-labelledby="result-heading">
+       <div class="header">
+    <h2 id="result-heading">Result</h2>
+ <p>Total Score: {{ total_score }} / {{ total_questions }}</p>
+<p>Overall Percentage: {{ percentage }}%</p>
+</div>
+
+
+        <div class="result-card" aria-live="polite">
+            <div class="score-container" aria-hidden="false">
+                <div class="score-circle" role="img" aria-label="Score circle">
+                    <div class="score-outer">
+                        <canvas id="scoreRing" width="170" height="170" style="width:170px;height:170px;"></canvas>
+                    </div>
+
+                    <div class="score-inner">
+                        <div class="score-text">
+                            <div class="score-values"><span id="score-value">{{ score }}</span>/<span id="total-value">{{ total }}</span></div>
+                            <div class="score-percent" id="score-percent">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="result-message" class="message" aria-hidden="false">Calculating your results...</div>
+
+            
+            <!-- ================= Performance Insights ================= -->
+<h3>📊 Performance Insights</h3>
+
+<table border="1" width="100%" cellpadding="8">
+    <tr>
+        <th>Subject</th>
+        <th>Score (%)</th>
+        <th>Performance</th>
+    </tr>
+
+    {% for item in insights %}
+    <tr>
+        <td>{{ item.subject }}</td>
+        <td>{{ item.percentage }}%</td>
+        <td>{{ item.level }}</td>
+    </tr>
+    {% endfor %}
+
+    {% if insights|length == 0 %}
+    <tr>
+        <td colspan="3" style="text-align:center;">No data available</td>
+    </tr>
+    {% endif %}
+</table>
+
+<!-- ================= Improvement Tips ================= -->
+
+<h3>📌 Improvement Tips</h3>
+
+<ul>
+    {% for tip in tips %}
+        <li>{{ tip }}</li>
+    {% endfor %}
+
+    {% if tips|length == 0 %}
+        <li>No improvement tips available.</li>
+    {% endif %}
+</ul>
+
+
+            <div class="breakdown" role="region" aria-label="Performance breakdown">
+                <div class="break-title">Performance Breakdown</div>
+
+                <div class="break-row" role="article" aria-label="Correct answers">
+                    <div class="break-icon correct" aria-hidden="true"><i class="fas fa-check"></i></div>
+                    <div class="break-text">
+                        <div class="title">Correct Answers</div>
+                        <div class="sub" id="correct-count">{{ score }} questions</div>
+                    </div>
+                </div>
+
+                <div class="break-row" role="article" aria-label="Incorrect answers">
+                    <div class="break-icon incorrect" aria-hidden="true"><i class="fas fa-times"></i></div>
+                    <div class="break-text">
+                        <div class="title">Incorrect Answers</div>
+                        <div class="sub" id="incorrect-count">
+    {{ total_questions - total_score }} questions
+</div>
+                    </div>
+                </div>
+
+                <!-- Time Taken placed AFTER correct/incorrect rows (your request) -->
+                 <div class="break-row" role="article" aria-label="Time taken">
+    <div class="break-icon neutral" aria-hidden="true">
+        <i class="fas fa-clock"></i>
+    </div>
+    <div class="break-text">
+        <div class="title">Time Taken</div>
+        <div class="sub" id="time-taken">{{ time_taken }}</div>
+    </div>
+</div>
+<div class="charts">
+    <h4 style="text-align:center;">Subject-wise Performance</h4>
+    <canvas id="barChart"></canvas>
+</div>
+<!-- Graph / Chart -->
+<div class="break-row" role="article" aria-label="Performance Graph" style="flex-direction:column; align-items:center;">
+    <canvas id="performanceChart" width="250" height="250" style="margin-top:12px;"></canvas>
+</div>
+
+
+
+
+            <div class="certificate-preview" id="certificate-btn" role="button" tabindex="0" aria-pressed="false">
+                <div class="certificate-icon"><i class="fas fa-certificate"></i></div>
+                <div class="certificate-text">Click to view and download your certificate</div>
+            </div>
+
+            <div class="share-row" aria-label="Share results">
+                <div class="share-btn facebook" id="share-facebook" title="Share on Facebook"><i class="fab fa-facebook-f"></i></div>
+                <div class="share-btn whatsapp" id="share-whatsapp" title="Share on WhatsApp"><i class="fab fa-whatsapp"></i></div>
+                <div class="share-btn twitter" id="share-twitter" title="Share on Twitter"><i class="fab fa-twitter"></i></div>
+                <div class="share-btn linkedin" id="share-linkedin" title="Share on LinkedIn"><i class="fab fa-linkedin-in"></i></div>
+            </div>
+
+            <div class="actions">
+                <a href="/review-exam" class="btn btn-secondary" role="button"><i class="fas fa-search"></i> Review Answers</a>
+                <a href="/" class="btn btn-primary" role="button"><i class="fas fa-home"></i> Return to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">&copy; 2025 Online Examination System</div>
+
+    <script>
+        // Server-provided values (safe defaults)
+        const SCORE = Number({{ total_score | default(0) }});
+        const TOTAL = Number({{ total_questions | default(1) }});
+
+        const USERNAME = "{{ session.get('username') or 'Student' }}";
+
+        // computed percentage
+        const PERCENT = (TOTAL > 0) ? Math.round((SCORE / TOTAL) * 100) : 0;
+
+        // DOM refs
+        const scoreValueEl = document.getElementById('score-value');
+        const totalValueEl = document.getElementById('total-value');
+        const scorePercentEl = document.getElementById('score-percent');
+        const resultMessageEl = document.getElementById('result-message');
+        const correctCountEl = document.getElementById('correct-count');
+        const incorrectCountEl = document.getElementById('incorrect-count');
+        const timeTakenEl = document.getElementById('time-taken');
+        const certificateBtn = document.getElementById('certificate-btn');
+
+        // fill static values (in case templating didn't)
+        scoreValueEl.textContent = Number.isFinite(SCORE) ? SCORE : 0;
+        totalValueEl.textContent = Number.isFinite(TOTAL) ? TOTAL : 1;
+
+        // determine time taken: try reading common keys from local/session storage, then URL param, then fallback demo time
+        function detectTimeTaken() {
+            try {
+                const keys = ['exam_start_time','examStartTime','start_time','startTime','examStart'];
+                for (const k of keys) {
+                    const v = sessionStorage.getItem(k) || localStorage.getItem(k);
+                    if (!v) continue;
+                    // if number (ms)
+                    if (!isNaN(Number(v)) && Number(v) > 0) {
+                        const ms = Date.now() - Number(v);
+                        if (ms >= 0) return formatMs(ms);
+                    }
+                    // try parse date string
+                    const d = Date.parse(v);
+                    if (!isNaN(d)) {
+                        const ms = Date.now() - d;
+                        if (ms >= 0) return formatMs(ms);
+                    }
+                    // try JSON containing start timestamp
+                    try {
+                        const parsed = JSON.parse(v);
+                        if (parsed && (parsed.start || parsed.ts || parsed.time)) {
+                            const n = Number(parsed.start || parsed.ts || parsed.time);
+                            if (!isNaN(n) && n > 0) {
+                                const ms = Date.now() - n;
+                                if (ms >= 0) return formatMs(ms);
+                            }
+                        }
+                    } catch(e){}
+                }
+
+                // URL param fallback
+                const params = new URLSearchParams(window.location.search);
+                if (params.has('start')) {
+                    const s = params.get('start');
+                    if (!isNaN(Number(s))) return formatMs(Date.now() - Number(s));
+                    const ps = Date.parse(s);
+                    if (!isNaN(ps)) return formatMs(Date.now() - ps);
+                }
+            } catch(e) {
+                // ignore and fallback
+            }
+            return null;
+        }
+
+        function formatMs(ms) {
+            const totalSec = Math.floor(ms / 1000);
+            return formatSeconds(totalSec);
+        }
+        function formatSeconds(totalSeconds) {
+            const m = Math.floor(totalSeconds / 60);
+            const s = totalSeconds % 60;
+            return `${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
+        }
+        function demoTime() {
+            const m = Math.floor(Math.random() * 20) + 8;
+            const s = Math.floor(Math.random() * 60);
+            return `${m}m ${String(s).padStart(2,'0')}s`;
+        }
+
+        // set time taken (after breakdown)
+        const detectedTime = detectTimeTaken();
+        timeTakenEl.textContent = detectedTime || demoTime();
+
+        // Message mapping by percentage
+        function setResultMessage(pct) {
+            let msg = '', colorClass = '';
+            if (pct === 100) { msg = 'Outstanding! 🏆 Perfect Score!'; colorClass = 'excellent'; }
+            else if (pct >= 90) { msg = 'Excellent Performance! 🌟'; colorClass = 'excellent'; }
+            else if (pct >= 80) { msg = 'Great Job! Keep it up! 💪'; colorClass = 'excellent'; }
+            else if (pct >= 70) { msg = "Nice Work! You're Improving! 🙂"; colorClass = 'good'; }
+            else if (pct >= 60) { msg = 'Good Effort! 👍'; colorClass = 'good'; }
+            else if (pct >= 50) { msg = 'You Passed! Keep Practicing.'; colorClass = 'good'; }
+            else { msg = 'Keep Learning & Try Again.'; colorClass = 'needs-improvement'; }
+
+            resultMessageEl.textContent = msg;
+            resultMessageEl.className = 'message ' + colorClass;
+        }
+
+        // small number anim for score / percent
+        function animateNumber(el, start, end, duration) {
+            const startTime = performance.now();
+            function step(now) {
+                const t = Math.min(1, (now - startTime) / duration);
+                const val = Math.floor(start + t*(end - start));
+                el.textContent = val;
+                if (t < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // init visuals on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // fill breakdown values
+            correctCountEl.textContent = `${SCORE} questions`;
+            incorrectCountEl.textContent = `${Math.max(0, TOTAL - SCORE)} questions`;
+
+            // animate numeric changes
+            animateNumber(document.getElementById('score-value'), 0, SCORE, 900);
+            animateNumberPercent(document.getElementById('score-percent'), 0, PERCENT, 900);
+
+            // message
+            // message
+setResultMessage(PERCENT);
+
+// Render performance chart as Pie
+// Render performance chart as Pie
+function renderPerformanceChart(correct, incorrect) {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Correct', 'Incorrect'],
+            datasets: [{
+                data: [correct, incorrect],
+                backgroundColor: [
+                    'rgba(11,163,96,0.7)',   // green
+                    'rgba(255,88,88,0.7)'    // red
+                ],
+                borderColor: [
+                    'rgba(11,163,96,1)',
+                    'rgba(255,88,88,1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: false, // ❌ important: disable responsiveness
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                tooltip: {
+                    enabled: true
+                }
+            }
+        }
+    });
+}
+
+// Call it
+renderPerformanceChart(SCORE, Math.max(0, TOTAL - SCORE));
+
+
+            // certificate button opens the backend route with percentage param
+            certificateBtn.addEventListener('click', () => {
+                certificateBtn.setAttribute('aria-pressed','true');
+                certificateBtn.style.pointerEvents = 'none';
+                // call backend to stream pdf: /download_certificate?score=...
+                // use PERCENT value computed here
+                window.location.href = `/download_certificate?score=${PERCENT}`;
+                // re-enable after short timeout
+                setTimeout(()=> {
+                    certificateBtn.style.pointerEvents = '';
+                    certificateBtn.setAttribute('aria-pressed','false');
+                }, 2000);
+            });
+
+            // share handlers
+            document.getElementById('share-facebook').addEventListener('click', shareFacebook);
+            document.getElementById('share-whatsapp').addEventListener('click', shareWhatsApp);
+            document.getElementById('share-twitter').addEventListener('click', shareTwitter);
+            document.getElementById('share-linkedin').addEventListener('click', shareLinkedIn);
+
+            // start ring animation
+            startRingAnimation(PERCENT);
+        });
+
+        // animate percent text with suffix
+        function animateNumberPercent(el, start, end, duration) {
+            const startTime = performance.now();
+            function step(now) {
+                const t = Math.min(1, (now - startTime) / duration);
+                const val = Math.floor(start + t*(end - start));
+                el.textContent = val + '%';
+                if (t < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+
+        // canvas ring animation (color-coded)
+        function startRingAnimation(targetPct) {
+            const canvas = document.getElementById('scoreRing');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            // match CSS size
+            const styleW = canvas.style.width.replace('px','') || canvas.width;
+            const styleH = canvas.style.height.replace('px','') || canvas.height;
+            canvas.width = parseInt(styleW,10);
+            canvas.height = parseInt(styleH,10);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const radius = Math.min(cx, cy) - 14;
+            const baseWidth = Math.max(10, Math.round(radius * 0.24));
+
+            function colorsFor(p) {
+                if (p >= 80) return ['#0ba360','#3cba92']; // green
+                if (p >= 50) return ['#f6d365','#fda085']; // orange/yellow
+                return ['#ff5858','#f857a6']; // red
+            }
+            const dur = 1400;
+            const start = performance.now();
+
+            function draw(now) {
+                const elapsed = now - start;
+                const t = Math.min(1, elapsed / dur);
+                const current = t * (targetPct / 100);
+
+                // clear
+                ctx.clearRect(0,0,canvas.width,canvas.height);
+
+                // background ring
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI*2);
+                ctx.lineWidth = baseWidth;
+                ctx.strokeStyle = '#eef2f4';
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // progress arc
+                const startAngle = -0.5 * Math.PI;
+                const endAngle = startAngle + current * 2 * Math.PI;
+
+                const cs = colorsFor(targetPct);
+                const grad = ctx.createLinearGradient(0,0,canvas.width,canvas.height);
+                grad.addColorStop(0, cs[0]);
+                grad.addColorStop(1, cs[1]);
+
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, startAngle, endAngle);
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = baseWidth;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                // subtle end-dot
+                if (current > 0.002) {
+                    const a = endAngle;
+                    const dx = cx + Math.cos(a) * radius;
+                    const dy = cy + Math.sin(a) * radius;
+                    ctx.beginPath();
+                    ctx.fillStyle = cs[1];
+                    ctx.arc(dx, dy, Math.max(3, baseWidth/2 - 1), 0, Math.PI*2);
+                    ctx.fill();
+                }
+
+                if (t < 1) requestAnimationFrame(draw);
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        // Share functions
+        function shareFacebook() {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`I scored ${SCORE}/${TOTAL} (${PERCENT}%) in this online exam!`);
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank', 'width=600,height=400');
+        }
+        function shareWhatsApp() {
+            const text = encodeURIComponent(`I scored ${SCORE}/${TOTAL} (${PERCENT}%) in the exam! ${window.location.href}`);
+            window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        }
+        function shareTwitter() {
+            const text = encodeURIComponent(`I scored ${SCORE}/${TOTAL} (${PERCENT}%) in this online exam!`);
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+        }
+        function shareLinkedIn() {
+            const url = encodeURIComponent(window.location.href);
+            window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=700,height=600');
+        }
+
+        // allow keyboard activation for certificate preview block
+        certificateBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                certificateBtn.click();
+            }
+        });
+    new Chart(document.getElementById("barChart"), {
+        type: "bar",
+        data: {
+            labels: [{% for s in subjects %}"{{ s.subject_name }}",{% endfor %}],
+            datasets: [{
+                label: "Score",
+                data: [{% for s in subjects %}{{ s.score }},{% endfor %}],
+                backgroundColor: "#6a85f1"
+            }]
+        },
+        options: {
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+</body>
+</html>
