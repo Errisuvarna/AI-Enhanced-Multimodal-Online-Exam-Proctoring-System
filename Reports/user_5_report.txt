@@ -1,0 +1,26 @@
+[10:43:22] Blink: Yes, Mouth: Closed, Head Pose: Up, Emotion: No Face (0%), Cheating: No, Audio: Normal
+[10:43:25] Blink: No, Mouth: Closed, Head Pose: Left, Emotion: Tired (64%), Cheating: No, Audio: Normal
+[10:43:28] Blink: Yes, Mouth: Closed, Head Pose: Down, Emotion: Tired (64%), Cheating: No, Audio: Normal
+[10:43:31] Blink: No, Mouth: Closed, Head Pose: Right, Emotion: Tired (65%), Cheating: No, Audio: Normal
+[10:43:34] Blink: Yes, Mouth: Closed, Head Pose: Center, Emotion: Tired (64%), Cheating: No, Audio: Normal
+[10:43:37] Blink: No, Mouth: Closed, Head Pose: Up, Emotion: Tired (65%), Cheating: No, Audio: Normal
+[10:43:40] Blink: Yes, Mouth: Closed, Head Pose: Left, Emotion: Tired (63%), Cheating: No, Audio: Normal
+[10:43:43] Blink: No, Mouth: Closed, Head Pose: Down, Emotion: Tired (66%), Cheating: No, Audio: Normal
+[10:43:43] Cheating Detected: Tab Switch
+[10:58:10] Blink: Yes, Mouth: Closed, Head Pose: Left, Emotion: Sleepy (53%), Cheating: No, Audio: Normal
+[10:58:13] Blink: No, Mouth: Closed, Head Pose: Down, Emotion: Sleepy (50%), Cheating: No, Audio: Normal
+[10:58:16] Blink: Yes, Mouth: Closed, Head Pose: Right, Emotion: Tired (67%), Cheating: No, Audio: Normal
+[10:58:17] Cheating Detected: Tab Switch
+[10:58:27] Blink: No, Mouth: Open, Head Pose: Up, Emotion: Tired (66%), Cheating: No, Audio: Normal
+[10:58:30] Blink: Yes, Mouth: Open, Head Pose: Left, Emotion: Tired (61%), Cheating: No, Audio: Normal
+[10:58:33] Blink: No, Mouth: Open, Head Pose: Down, Emotion: Tired (66%), Cheating: No, Audio: Normal
+[10:58:36] Blink: Yes, Mouth: Open, Head Pose: Right, Emotion: Tired (66%), Cheating: No, Audio: Normal
+[10:58:39] Blink: No, Mouth: Open, Head Pose: Center, Emotion: Tired (67%), Cheating: No, Audio: Normal
+[10:58:42] Blink: Yes, Mouth: Open, Head Pose: Up, Emotion: Tired (64%), Cheating: No, Audio: Normal
+[10:58:45] Blink: No, Mouth: Open, Head Pose: Left, Emotion: Tired (62%), Cheating: No, Audio: Normal
+[10:58:48] Blink: Yes, Mouth: Open, Head Pose: Down, Emotion: Sleepy (53%), Cheating: No, Audio: Normal
+[10:58:48] Cheating Detected: Tab Switch
+[11:01:10] Blink: Yes, Mouth: Closed, Head Pose: Left, Emotion: Sleepy (51%), Cheating: No, Audio: Normal
+[11:01:13] Blink: No, Mouth: Closed, Head Pose: Down, Emotion: Tired (65%), Cheating: No, Audio: Normal
+[11:01:16] Blink: Yes, Mouth: Closed, Head Pose: Right, Emotion: Sleepy (53%), Cheating: No, Audio: Normal
+[11:01:17] Cheating Detected: Tab Switch
